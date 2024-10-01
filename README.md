@@ -14,7 +14,7 @@ In other words, invoking `Set()` on a diode never blocks.
 ### Installation
 
 ```bash
-go get code.cloudfoundry.org/go-diodes
+go get github.com/csdenboer/go-diodes
 ```
 
 ### Example: Basic Use
@@ -155,5 +155,5 @@ nanosecond, without restarting your process, it would take you 584.54 years to
 encounter this issue.
 
 [diode-logo]:   https://raw.githubusercontent.com/cloudfoundry/go-diodes/gh-pages/diode-logo.png
-[go-doc-badge]: https://godoc.org/code.cloudfoundry.org/go-diodes?status.svg
-[go-doc]:       https://godoc.org/code.cloudfoundry.org/go-diodes
+[go-doc-badge]: https://godoc.org/github.com/csdenboer/go-diodes?status.svg
+[go-doc]:       https://godoc.org/github.com/csdenboer/go-diodes

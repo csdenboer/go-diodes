@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"code.cloudfoundry.org/go-diodes"
+	"github.com/csdenboer/go-diodes"
 )
 
 var randData = randDataGen()

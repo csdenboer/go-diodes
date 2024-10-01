@@ -1,4 +1,4 @@
-module code.cloudfoundry.org/go-diodes
+module github.com/csdenboer/go-diodes
 
 go 1.22
 
