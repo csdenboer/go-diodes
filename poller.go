@@ -9,13 +9,11 @@ import (
 type Diode interface {
 	Set(GenericDataType)
 	TryNext() (GenericDataType, bool)
-	GetChannel() chan struct{}
 }
 
 // Poller will poll a diode until a value is available.
 type Poller struct {
 	Diode
-	c        chan struct{}
 	interval time.Duration
 	ctx      context.Context
 }
@@ -42,12 +40,8 @@ func WithPollingContext(ctx context.Context) PollerConfigOption {
 
 // NewPoller returns a new Poller that wraps the given diode.
 func NewPoller(d Diode, opts ...PollerConfigOption) *Poller {
-	c := make(chan struct{})
-	close(c)
-
 	p := &Poller{
 		Diode:    d,
-		c:        c,
 		interval: 10 * time.Millisecond,
 		ctx:      context.Background(),
 	}
@@ -74,10 +68,6 @@ func (p *Poller) Next() GenericDataType {
 		}
 		return data
 	}
-}
-
-func (p *Poller) GetChannel() chan struct{} {
-	return p.c
 }
 
 func (p *Poller) isDone() bool {
