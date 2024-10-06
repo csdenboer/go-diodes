@@ -9,11 +9,14 @@ import (
 // ManyToOne diode is optimal for many writers (go-routines B-n) and a single
 // reader (go-routine A). It is not thread safe for multiple readers.
 type ManyToOne struct {
-	c          chan struct{}
 	writeIndex uint64
 	buffer     []unsafe.Pointer
 	readIndex  uint64
-	alerter    Alerter
+
+	alerter Alerter
+
+	readChannel   chan struct{}
+	closedChannel chan struct{}
 }
 
 // NewManyToOne creates a new diode (ring buffer). The ManyToOne diode
@@ -27,9 +30,10 @@ func NewManyToOne(size int, alerter Alerter) *ManyToOne {
 	}
 
 	d := &ManyToOne{
-		c:       make(chan struct{}, 1),
-		buffer:  make([]unsafe.Pointer, size),
-		alerter: alerter,
+		buffer:        make([]unsafe.Pointer, size),
+		alerter:       alerter,
+		readChannel:   make(chan struct{}, 1),
+		closedChannel: make(chan struct{}),
 	}
 
 	// Start write index at the value before 0
@@ -131,6 +135,14 @@ func (d *ManyToOne) TryNext() (data GenericDataType, ok bool) {
 	return result.data, true
 }
 
-func (d *ManyToOne) GetChannel() chan struct{} {
-	return d.c
+func (d *ManyToOne) Close() {
+	close(d.closedChannel)
+}
+
+func (d *ManyToOne) GetReadChannel() chan struct{} {
+	return d.readChannel
+}
+
+func (d *ManyToOne) GetClosedChannel() chan struct{} {
+	return d.closedChannel
 }

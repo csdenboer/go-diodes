@@ -43,14 +43,10 @@ func (w *Waiter) Set(data GenericDataType) {
 	w.broadcast()
 }
 
-func (w *Waiter) GetChannel() chan struct{} {
-	return w.Diode.GetChannel()
-}
-
 // broadcast sends to the channel if it can.
 func (w *Waiter) broadcast() {
 	select {
-	case w.Diode.GetChannel() <- struct{}{}:
+	case w.Diode.GetReadChannel() <- struct{}{}:
 	default:
 	}
 }
@@ -67,7 +63,7 @@ func (w *Waiter) Next() GenericDataType {
 		select {
 		case <-w.ctx.Done():
 			return nil
-		case <-w.Diode.GetChannel():
+		case <-w.Diode.GetReadChannel():
 		}
 	}
 }
