@@ -31,6 +31,7 @@ type bucket struct {
 // OneToOne diode is meant to be used by a single reader and a single writer.
 // It is not thread safe if used otherwise.
 type OneToOne struct {
+	c          chan struct{}
 	buffer     []unsafe.Pointer
 	writeIndex uint64
 	readIndex  uint64
@@ -47,6 +48,7 @@ func NewOneToOne(size int, alerter Alerter) *OneToOne {
 	}
 
 	return &OneToOne{
+		c:       make(chan struct{}, 1),
 		buffer:  make([]unsafe.Pointer, size),
 		alerter: alerter,
 	}
@@ -126,4 +128,8 @@ func (d *OneToOne) TryNext() (data GenericDataType, ok bool) {
 	// (where seq was greater than readIndex).
 	d.readIndex++
 	return result.data, true
+}
+
+func (d *OneToOne) GetChannel() chan struct{} {
+	return d.c
 }

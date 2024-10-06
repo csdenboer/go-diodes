@@ -8,7 +8,6 @@ import (
 // available.
 type Waiter struct {
 	Diode
-	C   chan struct{}
 	ctx context.Context
 }
 
@@ -28,7 +27,6 @@ func WithWaiterContext(ctx context.Context) WaiterConfigOption {
 func NewWaiter(d Diode, opts ...WaiterConfigOption) *Waiter {
 	w := new(Waiter)
 	w.Diode = d
-	w.C = make(chan struct{}, 1)
 	w.ctx = context.Background()
 
 	for _, opt := range opts {
@@ -45,10 +43,14 @@ func (w *Waiter) Set(data GenericDataType) {
 	w.broadcast()
 }
 
+func (w *Waiter) GetChannel() chan struct{} {
+	return w.Diode.GetChannel()
+}
+
 // broadcast sends to the channel if it can.
 func (w *Waiter) broadcast() {
 	select {
-	case w.C <- struct{}{}:
+	case w.Diode.GetChannel() <- struct{}{}:
 	default:
 	}
 }
@@ -65,7 +67,7 @@ func (w *Waiter) Next() GenericDataType {
 		select {
 		case <-w.ctx.Done():
 			return nil
-		case <-w.C:
+		case <-w.Diode.GetChannel():
 		}
 	}
 }
