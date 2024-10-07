@@ -2,6 +2,7 @@ package diodes
 
 import (
 	"context"
+	"fmt"
 )
 
 // Waiter will use a channel signal to alert the reader to when data is
@@ -47,7 +48,9 @@ func (w *Waiter) Set(data GenericDataType) {
 func (w *Waiter) broadcast() {
 	select {
 	case w.Diode.GetReadChannel() <- struct{}{}:
+		fmt.Println("sent on read channel")
 	default:
+		fmt.Println("read channel full")
 	}
 }
 
