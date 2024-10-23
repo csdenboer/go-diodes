@@ -2,6 +2,8 @@ package diodes
 
 import (
 	"context"
+	"fmt"
+	"time"
 )
 
 // Waiter will use a channel signal to alert the reader to when data is
@@ -45,9 +47,16 @@ func (w *Waiter) Set(data GenericDataType) {
 
 // broadcast sends to the channel if it can.
 func (w *Waiter) broadcast() {
+	t := time.Now()
+
 	select {
 	case w.Diode.GetReadChannel() <- struct{}{}:
 	default:
+	}
+
+	dur := time.Since(t)
+	if dur > 10*time.Microsecond {
+		fmt.Println(fmt.Sprintf("publishing took %v", dur))
 	}
 }
 
