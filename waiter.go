@@ -55,8 +55,8 @@ func (w *Waiter) broadcast() {
 	}
 
 	dur := time.Since(t)
-	if dur > 10*time.Microsecond {
-		fmt.Println(fmt.Sprintf("publishing took %v", dur))
+	if dur > 2*time.Microsecond {
+		fmt.Println(fmt.Sprintf("sending took %v", dur))
 	}
 }
 
