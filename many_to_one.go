@@ -2,6 +2,7 @@ package diodes
 
 import (
 	"log"
+	"sync"
 	"sync/atomic"
 	"unsafe"
 )
@@ -17,6 +18,9 @@ type ManyToOne struct {
 
 	readChannel   chan struct{}
 	closedChannel chan struct{}
+
+	closedChannelIsClosed      bool
+	closedChannelIsClosedMutex sync.RWMutex
 }
 
 // NewManyToOne creates a new diode (ring buffer). The ManyToOne diode
@@ -136,7 +140,14 @@ func (d *ManyToOne) TryNext() (data GenericDataType, ok bool) {
 }
 
 func (d *ManyToOne) Close() {
-	close(d.closedChannel)
+	d.closedChannelIsClosedMutex.Lock()
+	defer d.closedChannelIsClosedMutex.Unlock()
+
+	if !d.closedChannelIsClosed {
+		d.closedChannelIsClosed = true
+
+		close(d.closedChannel)
+	}
 }
 
 func (d *ManyToOne) GetReadChannel() chan struct{} {
