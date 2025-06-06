@@ -48,6 +48,8 @@ func NewManyToOne(size int, alerter Alerter) *ManyToOne {
 }
 
 // Set sets the data in the next slot of the ring buffer.
+//
+//go:nosplit
 func (d *ManyToOne) Set(data GenericDataType) {
 	for {
 		writeIndex := atomic.AddUint64(&d.writeIndex, 1)
@@ -77,6 +79,8 @@ func (d *ManyToOne) Set(data GenericDataType) {
 
 // TryNext will attempt to read from the next slot of the ring buffer.
 // If there is not data available, it will return (nil, false).
+//
+//go:nosplit
 func (d *ManyToOne) TryNext() (data GenericDataType, ok bool) {
 	// Read a value from the ring buffer based on the readIndex.
 	idx := d.readIndex % uint64(len(d.buffer))
